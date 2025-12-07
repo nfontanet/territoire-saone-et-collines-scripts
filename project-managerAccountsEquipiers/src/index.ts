@@ -2,14 +2,7 @@ import { getPeriodMandatCurrent } from "./adapters/dayjs.adapter.js";
 import { findSharedFolderByName } from "./sdk/drive/sharedFolder.js";
 import { getNommageDriveByPeriodMandat } from "./sdk/drive/temporality.js";
 
-
-// Etendre globalThis pour App Script
-declare global {
-  var excutor: () => void
-}
-
-// Définition de la fonction d'exécution
-globalThis.excutor = () => {
+export const main = (): void => {
   // Logique de la fonction
   const periodMandat = getPeriodMandatCurrent()
 

@@ -13,9 +13,3 @@ dist/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
-# IDE / OS
-.vscode/
-.idea/
-.DS_Store
-Thumbs.db

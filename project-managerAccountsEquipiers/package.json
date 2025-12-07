@@ -1,5 +1,5 @@
 {
-  "name": "projectManagerAccountsEquipiers",
+  "name": "project-managerAccountsEquipiers",
   "version": "1.0.0",
   "description": "Permettre de gérer les comptes et équipiers sur Google Workspace en fonction d'un fichier excel et mettre à jours les données en fonction du téléchargement de l'export de l'intranet des SGDF",
   "type": "module",
@@ -9,9 +9,9 @@
   "license": "MIT",
   "scripts": {
     "start": "zx tasks/start.mjs",
-    "build": "node tasks/build.mjs",
-    "push": "echo 'y' | clasp push",
-    "deploy": "zx tasks/prepare-deploy.mjs; yarn push",
+    "build": "rm -rf build/ && tsc -p tsconfig.src.json --pretty",
+    "push": "zx tasks/push.mjs",
+    "deploy": "zx tasks/deploy.mjs",
     "login": "clasp login",
     "open": "clasp open",
     "status": "clasp status",
@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "@google/clasp": "^2.4.2",
+    
     "zx": "^8.1.2"
   }
 }

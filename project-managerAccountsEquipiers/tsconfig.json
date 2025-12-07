@@ -1,35 +1,27 @@
 {
   "compilerOptions": {
-    // Version JS supportée par le moteur V8 de Google Apps Script (ES2020 = stable et compatible)
-    "target": "es2020",
-    // Pas de modules, tout doit être global pour Google Apps Script
-    "module": "none",
-    // Dossier où le JS compilé sera placé pour clasp
-    "outDir": "./build",
-    // Résolution Node pour gérer les modules npm comme dayjs, mais compilation en global
-    "moduleResolution": "node",
-    // Permet l'interopérabilité avec les modules CommonJS
-    "esModuleInterop": true,
-    // Génère des .d.ts (utile si tu veux typer ou réutiliser ailleurs)
-    "declaration": true,
-    // Permet le debug avec maps (utile si erreur côté GAS)
-    "sourceMap": true,
-    // Inclut les sources TypeScript dans la sourcemap (pour un meilleur debug)
-    "inlineSources": true,
-    // Ignore les erreurs dans les définitions de types (plus rapide, moins de bruit)
-    "skipLibCheck": true,
-    // Active toutes les vérifications strictes (bonne pratique TypeScript)
-    "strict": true,
-    // Accès aux tableaux/maps doit être vérifié (plus sûr)
-    "noUncheckedIndexedAccess": true,
-    // Force un return explicite dans les fonctions (évite les oublis)
-    "noImplicitReturns": true,
-    // Catch utilise "any" au lieu de "unknown" (plus pratique pour GAS)
-    "useUnknownInCatchVariables": true,
-    // Affiche les erreurs TypeScript complètes (pour un debug plus lisible)
-    "noErrorTruncation": true,
-    // Bibliothèque de base adaptée à GAS (sans DOM, ES2020 = stable et compatible)
-    "lib": ["ES2020"]
+    "target": "es2023",                // Version JS supportée par le moteur V8 de GAS
+    "module": "nodenext",                  // GAS n’accepte pas les modules (tout doit être global)
+    "outDir": "./build",               // Dossier où le JS compilé sera placé pour clasp
+    "moduleResolution": "nodenext",
+    "esModuleInterop": false,          // Pas d'import/export Node, donc inutile
+    "isolatedModules": false,          // Pas nécessaire car pas de modules
+    "verbatimModuleSyntax": false,     // Inutile sans modules
+    "resolveJsonModule": false,        // JSON import = pas supporté dans GAS
+    "declaration": true,               // Génère des .d.ts (utile si ton projet est une lib)
+    "isolatedDeclarations": true,      // Force un typage strict des fonctions publiques
+    "sourceMap": true,                 // Permet le debug avec maps (utile si erreur côté GAS)
+    "inlineSources": true,             // Inclut les sources TypeScript dans la sourcemap
+    "sourceRoot": "/",                 // Point de base pour retrouver les sources (optionnel)
+    "skipLibCheck": true,              // Ignore les erreurs dans les définitions de types
+    "strict": true,                    // Active toutes les vérifications strictes
+    "noUncheckedIndexedAccess": true,  // Accès aux tableaux/maps doit être vérifié
+    "noImplicitReturns": true,         // Force un return explicite dans les fonctions
+    "useUnknownInCatchVariables": false, // Catch utilise "any" au lieu de "unknown"
+    "noErrorTruncation": true,         // Affiche les erreurs TypeScript complètes
+    "lib": [
+      "ES2023"                         // Bibliothèque de base adaptée à GAS (sans DOM)
+    ]
   },
-  "include": ["src/**/*.ts"] // Ton code source est dans src/
+  "include": ["src/**/*.ts"]           // Ton code source est dans src/
 }
