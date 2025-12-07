@@ -1,0 +1,19 @@
+{
+  "name": "scripts-territoire-saone-et-collines",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "deploy:managerAccountsEquipiers": "zx scripts/deploy.mjs project-managerAccountsEquipiers",
+    "deploy:admin": "zx scripts/deploy.mjs project-admin",
+    "deploy:all": "yarn deploy:managerAccountsEquipiers"
+  },
+  "dependencies": {
+    "zx": "^7.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2",
+    "@types/google-apps-script": "^1.0.17",
+    "tsx": "^4.13.0"
+  }
+}
