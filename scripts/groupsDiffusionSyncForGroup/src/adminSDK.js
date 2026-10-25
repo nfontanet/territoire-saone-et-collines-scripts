@@ -23,6 +23,15 @@
 
 
 /* ============================================================
+ * CONFIGURATION GLOBALE
+ * ============================================================ */
+
+// Flag temporaire : mettez à TRUE pour forcer l'application des paramètres
+// sur TOUS les groupes (y compris existants), puis remettez à FALSE après exécution
+const FORCE_APPLIQUER_PARAMETRES_UNE_FOIS = false;
+
+
+/* ============================================================
  * 1. VÉRIFICATIONS DE SERVICES
  * ============================================================ */
 
@@ -141,6 +150,8 @@ function executerSynchronisationGoogleGroups_(contexte) {
     membresDejaConformes: 0,
     proprietairesGestionnairesProteges: 0,
     reglagesAppliques: 0,
+    reglagesEchoues: 0,
+    erreursParametres: [],
     erreurs: []
   };
 
@@ -153,7 +164,7 @@ function executerSynchronisationGoogleGroups_(contexte) {
 
     groupes.forEach(function (groupe) {
       try {
-        const resultat = synchroniserUnGroupeAdministration_(groupe);
+        const resultat = synchroniserUnGroupeAdministration_(groupe, contexte);
 
         bilan.groupesTraites++;
         bilan.groupesCrees += resultat.cree ? 1 : 0;
@@ -163,13 +174,18 @@ function executerSynchronisationGoogleGroups_(contexte) {
         bilan.membresDejaConformes += resultat.dejaConformes;
         bilan.proprietairesGestionnairesProteges +=
           resultat.proprietairesGestionnairesProteges;
-        bilan.reglagesAppliques += resultat.reglagesAppliques ? 1 : 0;
-
-        (resultat.erreursReglages || []).forEach(function (message) {
-          bilan.erreurs.push(
-            'Groupe "' + groupe.adresse + '" — réglages : ' + message
-          );
-        });
+        
+        // MODIFICATION: Compter les succès et échecs de paramètres
+        if (resultat.reglagesAppliques) {
+          bilan.reglagesAppliques++;
+        } else if (resultat.erreursReglages && resultat.erreursReglages.length > 0) {
+          bilan.reglagesEchoues++;
+          resultat.erreursReglages.forEach(function(message) {
+            bilan.erreursParametres.push(
+              'Groupe "' + groupe.adresse + '" — réglages : ' + message
+            );
+          });
+        }
       } catch (erreurGroupe) {
         bilan.erreurs.push(
           'Groupe "' + groupe.adresse + '" : ' +
@@ -184,6 +200,15 @@ function executerSynchronisationGoogleGroups_(contexte) {
       bilan.erreurs.length ? 'Échec ou résultat partiel' : 'Succès',
       resume
     );
+
+    // MODIFICATION: Journaliser spécifiquement les échecs de paramètres
+    if (bilan.erreursParametres.length > 0) {
+      const messageParametres = bilan.erreursParametres.join('\n');
+      journaliserAdministrationSecurise_(
+        'AVERTISSEMENT',
+        'Échecs d\'application des paramètres pour ' + bilan.reglagesEchoues + ' groupe(s) :\n' + messageParametres
+      );
+    }
 
     if (bilan.erreurs.length > 0) {
       throw new Error(resume);
@@ -332,7 +357,7 @@ function verifierAbsenceDoublonsGroupes_(groupes) {
  * 4. SYNCHRONISATION D'UN GROUPE
  * ============================================================ */
 
-function synchroniserUnGroupeAdministration_(groupe) {
+function synchroniserUnGroupeAdministration_(groupe, contexte) {
   const resultat = {
     cree: false,
     renomme: false,
@@ -375,6 +400,9 @@ function synchroniserUnGroupeAdministration_(groupe) {
 
       groupeCree = true;
       resultat.cree = true;
+
+      // DELAS DE 2 SECONDES APRES CREATION POUR QUE GOOGLE PROPAGE LE GROUPE
+      Utilities.sleep(2000);
     } catch (erreurCreation) {
       // La création peut échouer si le groupe existe déjà : on le relit.
       try {
@@ -418,8 +446,12 @@ function synchroniserUnGroupeAdministration_(groupe) {
   }
 
   // Réglages Groups Settings.
-  const appliquerReglages =
-    groupeCree || CONFIG.REAPPLIQUER_REGLAGES_A_CHAQUE_SYNCHRO !== false;
+  // MODIFICATION: Paramètres appliqués à la création OU si flag temporaire activé
+  // Pour forcer l'application sur TOUS les groupes existants une fois :
+  // 1. Mettez FORCE_APPLIQUER_PARAMETRES_UNE_FOIS = true en haut de ce fichier
+  // 2. Exécutez syncGroups()
+  // 3. Remettez FORCE_APPLIQUER_PARAMETRES_UNE_FOIS = false
+  const appliquerReglages = groupeCree || FORCE_APPLIQUER_PARAMETRES_UNE_FOIS;
 
   if (appliquerReglages) {
     verifierServiceAdminGroupsSettings_();
@@ -808,7 +840,8 @@ function patcherReglagesAvecRetryAdministration_(
         i < maxTentatives &&
         estErreurRessourceAbsenteAdministration_(erreur)
       ) {
-        Utilities.sleep(2000 * (i + 1));
+        // DELAS DE 3 SECONDES ENTRE LES TENTATIVES (au lieu de 2)
+        Utilities.sleep(3000 * (i + 1));
         continue;
       }
 
@@ -849,11 +882,16 @@ function appliquerLotReglagesAdministration_(
     }
   }
 
-  Object.keys(reglages).forEach(function (cle) {
+  Object.keys(reglages).forEach(function (cle, index) {
     try {
       const un = {};
       un[cle] = reglages[cle];
       patcherReglagesAvecRetryAdministration_(groupeEmail, un, 0);
+      
+      // DELAS DE 1 SECONDE ENTRE CHAQUE PARAMETRE POUR ÉVITER LE QUOTA
+      if (index < Object.keys(reglages).length - 1) {
+        Utilities.sleep(1000);
+      }
     } catch (erreurUnitaire) {
       echecs.push(
         libelle + ' — ' + cle + ' : ' +
@@ -890,13 +928,17 @@ function configurerParametresGroupeDiffusion_(
         groupeEmail, 'Lot 1 (réglages principaux)',
         reglages.lot1, tentatives
       )
-    )
-    .concat(
-      appliquerLotReglagesAdministration_(
-        groupeEmail, 'Lot 2 (réglages secondaires)',
-        reglages.lot2, tentatives
-      )
     );
+
+  // DELAS DE 2 SECONDES ENTRE LOT1 ET LOT2 POUR ÉVITER LE QUOTA
+  Utilities.sleep(2000);
+
+  echecs.concat(
+    appliquerLotReglagesAdministration_(
+      groupeEmail, 'Lot 2 (réglages secondaires)',
+      reglages.lot2, tentatives
+    )
+  );
 
   // Relecture complète (hors texte du pied de page et langue).
   try {
@@ -1132,7 +1174,7 @@ function administrationMessageErreur_(erreur) {
 }
 
 function construireResumeAdministration_(bilan) {
-  const succes = bilan.erreurs.length === 0;
+  const succes = bilan.erreurs.length === 0 && bilan.erreursParametres.length === 0;
 
   const lignes = [
     'Bilan de synchronisation Google Groups',
@@ -1149,6 +1191,18 @@ function construireResumeAdministration_(bilan) {
     'Groupes avec réglages appliqués sans erreur : ' +
       (bilan.reglagesAppliques || 0)
   ];
+
+  // MODIFICATION: Ajouter les échecs de paramètres dans le résumé
+  if (bilan.reglagesEchoues > 0) {
+    lignes.push(
+      '',
+      'Échecs d\'application des paramètres : ' + bilan.reglagesEchoues + ' groupe(s)',
+      ''
+    );
+    bilan.erreursParametres.forEach(function(erreur) {
+      lignes.push('- ' + erreur);
+    });
+  }
 
   if (bilan.erreurs.length > 0) {
     lignes.push('', 'ERREURS :');
@@ -1218,5 +1272,114 @@ function testerAccesDonneesAdministration() {
     );
 
     throw erreur;
+  }
+}
+
+
+/* ============================================================
+ * NOUVELLE FONCTION : APPLIQUER LES PARAMÈTRES SUR TOUS LES GROUPES
+ * ============================================================ */
+
+/**
+ * Applique les paramètres sur TOUS les groupes existants (une seule fois)
+ * À exécuter manuellement pour initialiser les paramètres sur des groupes déjà créés
+ */
+function appliquerParametresTousGroupes_() {
+  const verrou = LockService.getScriptLock();
+
+  if (!verrou.tryLock(30000)) {
+    throw new Error('Une autre opération est déjà en cours. Réessayez plus tard.');
+  }
+
+  try {
+    verifierServiceAdminDirectory_();
+    verifierServiceAdminGroupsSettings_();
+
+    const contexte = preparerSynchronisation_({ autoriserMissionsInvalides: false });
+    const groupes = [contexte.groupeAdherents].concat(contexte.groupes);
+
+    let successes = 0;
+    let failures = 0;
+    const errorDetails = [];
+
+    const ui = SpreadsheetApp.getUi();
+    const progressBar = ui.createProgressBar(
+      'Application des paramètres...',
+      0,
+      groupes.length
+    );
+
+    groupes.forEach(function(groupe, index) {
+      progressBar.setProgress(index);
+
+      // DELAS DE 3 SECONDES ENTRE CHAQUE GROUPE POUR ÉVITER LE QUOTA
+      if (index > 0) {
+        Utilities.sleep(3000);
+      }
+
+      try {
+        const nomAffiche = estGroupeCommunAdministration_(groupe)
+          ? (CONFIG.NOM_GROUPE_COMMUN || 'Adhérents')
+          : String(groupe.mission || groupe.nomMission || groupe.adresse).trim();
+
+        const erreurs = configurerParametresGroupeDiffusion_(
+          groupe.adresse,
+          nomAffiche,
+          4
+        );
+
+        if (erreurs.length === 0) {
+          successes++;
+        } else {
+          failures++;
+          errorDetails.push(...erreurs.map(e => `❌ ${groupe.adresse} — ${e}`));
+        }
+      } catch (e) {
+        failures++;
+        errorDetails.push(`❌ ${groupe.adresse} — ${administrationMessageErreur_(e)}`);
+      }
+    });
+
+    progressBar.dismiss();
+
+    const message = [
+      `✅ Paramètres appliqués sur ${successes} groupe(s)`,
+      `❌ Échecs: ${failures} groupe(s)`
+    ];
+
+    if (errorDetails.length > 0) {
+      message.push('', 'Détails des échecs:', ...errorDetails);
+    }
+
+    journaliserAdministrationSecurise_(
+      failures > 0 ? 'AVERTISSEMENT' : 'SUCCÈS',
+      message.join('\n')
+    );
+
+    SpreadsheetApp.getUi().alert(
+      'Application des paramètres terminée',
+      message.join('\n'),
+      SpreadsheetApp.getUi().ButtonSet.OK
+    );
+
+    return {
+      successes: successes,
+      failures: failures,
+      errorDetails: errorDetails
+    };
+
+  } catch (e) {
+    journaliserAdministrationSecurise_(
+      'ERREUR',
+      `Échec application paramètres: ${administrationMessageErreur_(e)}`
+    );
+    SpreadsheetApp.getUi().alert(
+      'Erreur',
+      `Impossible d'appliquer les paramètres: ${administrationMessageErreur_(e)}`,
+      SpreadsheetApp.getUi().ButtonSet.OK
+    );
+    throw e;
+  } finally {
+    verrou.releaseLock();
   }
 }

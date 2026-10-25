@@ -616,13 +616,22 @@ function verifierConfigurationSynchronisation_() {
     );
   }
 
+
+  // Lire REAPPLIQUER_REGLAGES_A_CHAQUE_SYNCHRO depuis le classeur
+  let reappliquerReglages = CONFIG.REAPPLIQUER_REGLAGES_A_CHAQUE_SYNCHRO;
+  if (valeurs.hasOwnProperty("REAPPLIQUER_REGLAGES_A_CHAQUE_SYNCHRO")) {
+    const val = String(valeurs.REAPPLIQUER_REGLAGES_A_CHAQUE_SYNCHRO).trim().toLowerCase();
+    reappliquerReglages = (val === "true" || val === "oui" || val === "1");
+  }
+
   return {
     valide: erreurs.length === 0,
     message: erreurs.join('\n'),
     erreurs: erreurs,
     valeurs: valeurs,
     codeGroupe: codeGroupe,
-    adresseGroupeAdherents: adresseGroupeAdherents
+    adresseGroupeAdherents: adresseGroupeAdherents,
+    reappliquerReglages: reappliquerReglages
   };
 }
 

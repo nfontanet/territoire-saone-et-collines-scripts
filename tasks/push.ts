@@ -1,12 +1,12 @@
 #!/usr/bin/env zx
 
-import { $ } from "zx";
-import { argv } from "process";
+import { argv } from 'process';
+import { $ } from 'zx';
 
 const scriptName = argv[2]; // Ex: "hello-world"
 
 if (!scriptName) {
-  console.error("❌ Usage: zx push.ts <script-name>");
+  console.error('❌ Usage: zx push.ts <script-name>');
   process.exit(1);
 }
 

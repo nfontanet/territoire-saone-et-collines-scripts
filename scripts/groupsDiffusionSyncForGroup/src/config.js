@@ -5,11 +5,9 @@
 const CONFIG = Object.freeze({
   DOMAINE: 'sgdf-lyon-saone-et-collines.fr',
 
-  EMAIL_PROPRIETAIRE_GROUPES:
-    'administrateur@sgdf-lyon-saone-et-collines.fr',
+  EMAIL_PROPRIETAIRE_GROUPES: 'administrateur@sgdf-lyon-saone-et-collines.fr',
 
-  EMAIL_NOTIFICATION_SYNC_AUTO:
-    'administrateur@sgdf-lyon-saone-et-collines.fr',
+  EMAIL_NOTIFICATION_SYNC_AUTO: 'administrateur@sgdf-lyon-saone-et-collines.fr',
 
   ONGLET_MEMBRES: 'Adhérents',
   ONGLET_MAPPING: 'Mapping',
@@ -20,11 +18,9 @@ const CONFIG = Object.freeze({
 
   CREER_GROUPES_SI_ABSENT: true,
 
-  ADRESSE_GROUPE_ADHERENTS:
-    'adherent@sgdf-lyon-saone-et-collines.fr',
+  ADRESSE_GROUPE_ADHERENTS: 'adherent@sgdf-lyon-saone-et-collines.fr',
 
-  PREFIXE_OBJET_DIFFUSION:
-    '[🏕️ Territoire - Lyon Saône et Collines]',
+  PREFIXE_OBJET_DIFFUSION: '[🏕️ Territoire - Lyon Saône et Collines]',
 
   SAISON_PAR_DEFAUT: '2026-2027',
 
@@ -45,7 +41,7 @@ const CONFIG = Object.freeze({
 
   // Nouvelles tentatives pour les réglages d'un groupe tout juste créé
   // (Groups Settings peut mettre quelques secondes à le reconnaître).
-  TENTATIVES_REGLAGES_APRES_CREATION: 4,
+  TENTATIVES_REGLAGES_APRES_CREATION: 10,
 
   // Visibilité des conversations. Le document de référence demande
   // ANYONE_CAN_VIEW (public). Pour restreindre aux membres :
@@ -55,12 +51,10 @@ const CONFIG = Object.freeze({
   ACTIONS_RESTREINTES: [
     'Initialiser les onglets',
     'Synchroniser maintenant',
-    'Réappliquer les réglages Diffusion'
+    'Réappliquer les réglages Diffusion',
   ],
 
-  UTILISATEURS_AUTORISES: [
-    'administrateur@sgdf-lyon-saone-et-collines.fr'
-  ],
+  UTILISATEURS_AUTORISES: ['administrateur@sgdf-lyon-saone-et-collines.fr'],
 
   SYNC_AUTO_DELAI_MINUTES: 3,
 
@@ -74,15 +68,11 @@ const CONFIG = Object.freeze({
     'NomGroupe',
     'PrefixeObjet',
     'SynchroAutomatique',
-    'AdresseGroupeAdherents'
+    'AdresseGroupeAdherents',
+    'REAPPLIQUER_REGLAGES_A_CHAQUE_SYNCHRO',
   ],
 
-  ENTETES_JOURNAL: [
-    'Date',
-    'Action',
-    'Résultat',
-    'Détails'
-  ],
+  ENTETES_JOURNAL: ['Date', 'Action', 'Résultat', 'Détails'],
 
   COULEUR_ENTETE: '#1F4E78',
   COULEUR_TEXTE_ENTETE: '#FFFFFF',
@@ -99,5 +89,5 @@ const CONFIG = Object.freeze({
   REGEX_MISSION_ENTETE: /mission/i,
   REGEX_EXCLUSION_STATUT: /inactif|sorti|parti/i,
   REGEX_STATUT_DIFFUSION: /^statut\s*diffusion$/i,
-  REGEX_SAISON: /(?:^|\D)(\d{4})\s*[-–—]\s*(\d{4})(?:\D|$)/
+  REGEX_SAISON: /(?:^|\D)(\d{4})\s*[-–—]\s*(\d{4})(?:\D|$)/,
 });
