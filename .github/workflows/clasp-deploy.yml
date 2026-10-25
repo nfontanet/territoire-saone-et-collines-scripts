@@ -2,7 +2,7 @@ name: Deploy Google Apps Scripts
 
 on:
   push:
-    branches: [ dev, master ]
+    branches: [master]
 
 jobs:
   deploy:
@@ -26,10 +26,5 @@ jobs:
           echo "$CLASP_TOKEN" > token.json
           npx clasp login --creds token.json
 
-      - name: Deploy to dev
-        if: github.ref == 'refs/heads/dev'
-        run: npx zx scripts/deploy/deploy-to-dev.ts
-
-      - name: Deploy to production
-        if: github.ref == 'refs/heads/master'
-        run: npx zx scripts/deploy/deploy-to-prod.ts
+      - name: Deploy
+        run: npx zx tasks/deploy.ts
