@@ -4,10 +4,9 @@
   "type": "module",
   "scripts": {
     "clasp:login": "clasp login",
-    "clasp:push": "zx scripts/deploy/push.ts",
-    "clasp:pull": "zx scripts/deploy/pull.ts",
-    "deploy:dev": "zx scripts/deploy/deploy-to-dev.ts",
-    "deploy:prod": "zx scripts/deploy/deploy-to-prod.ts"
+    "clasp:push": "zx tasks/push.ts",
+    "clasp:pull": "zx tasks/pull.ts",
+    "deploy": "zx tasks/deploy.ts"
   },
   "dependencies": {
     "@google/clasp": "^2.4.2",

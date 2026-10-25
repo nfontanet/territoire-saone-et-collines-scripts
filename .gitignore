@@ -4,7 +4,7 @@ dist/
 package-lock.json
 
 # clasp
-.clasp.json
+/.clasp.json
 credentials.json
 token.json
 
