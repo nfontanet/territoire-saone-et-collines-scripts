@@ -1,0 +1,20 @@
+# Node.js
+node_modules/
+dist/
+package-lock.json
+
+# clasp
+.clasp.json
+credentials.json
+token.json
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

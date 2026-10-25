@@ -1,0 +1,20 @@
+{
+  "name": "territoire-saone-et-collines-scripts",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "clasp:login": "clasp login",
+    "clasp:push": "zx scripts/deploy/push.ts",
+    "clasp:pull": "zx scripts/deploy/pull.ts",
+    "deploy:dev": "zx scripts/deploy/deploy-to-dev.ts",
+    "deploy:prod": "zx scripts/deploy/deploy-to-prod.ts"
+  },
+  "dependencies": {
+    "@google/clasp": "^2.4.2",
+    "zx": "^7.2.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "tsx": "^4.7.0"
+  }
+}

@@ -1,0 +1,35 @@
+name: Deploy Google Apps Scripts
+
+on:
+  push:
+    branches: [ dev, master ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Login to clasp
+        env:
+          CLASP_TOKEN: ${{ secrets.CLASP_TOKEN }}
+        run: |
+          echo "$CLASP_TOKEN" > token.json
+          npx clasp login --creds token.json
+
+      - name: Deploy to dev
+        if: github.ref == 'refs/heads/dev'
+        run: npx zx scripts/deploy/deploy-to-dev.ts
+
+      - name: Deploy to production
+        if: github.ref == 'refs/heads/master'
+        run: npx zx scripts/deploy/deploy-to-prod.ts
