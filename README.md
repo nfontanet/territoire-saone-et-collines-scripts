@@ -34,7 +34,7 @@ territoire-saone-et-collines-scripts/
 
 ### Prérequis
 
-- Node.js 18+ 
+- Node.js 18+
 - npm ou yarn
 - [clasp](https://github.com/google/clasp) installé globalement ou via npx
 - Un projet Google Apps Script existant
@@ -166,13 +166,13 @@ Le repository inclut un workflow GitHub Actions pour automatiser le déploiement
 
 ## 📚 Scripts Disponibles
 
-| Commande | Description |
-|----------|-------------|
-| `npm run clasp:login` | Se connecter à Google Apps Script |
-| `npm run clasp:push <script>` | Pousser un script vers GAS |
-| `npm run clasp:pull <script>` | Tirer un script depuis GAS |
-| `npm run deploy:dev` | Déployer tous les scripts vers dev |
-| `npm run deploy:prod` | Déployer tous les scripts vers production |
+| Commande                      | Description                               |
+| ----------------------------- | ----------------------------------------- |
+| `npm run clasp:login`         | Se connecter à Google Apps Script         |
+| `npm run clasp:push <script>` | Pousser un script vers GAS                |
+| `npm run clasp:pull <script>` | Tirer un script depuis GAS                |
+| `npm run deploy:dev`          | Déployer tous les scripts vers dev        |
+| `npm run deploy:prod`         | Déployer tous les scripts vers production |
 
 ---
 
